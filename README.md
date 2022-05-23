@@ -11,7 +11,7 @@ Mikołaj Ewald, 469494
 
 ### przygotowanie danych wejściowych
 
-W celu przygotowania danych wyjściowych w pliku [*przykladoweDane-Projekt.csv*](https://github.com/ewaldmikolaj/projekt_rpis/blob/main/data/przykladoweDane-Projekt.csv) zacząłem od uzupełnienia braków w danych, czyli wartości NA. Wartości puste uzupełniane są przez **średnią** obliczaną dla grupy znajdującej się w pierwszej kolumnie zbioru danych. <br>
+W celu przygotowania danych wyjściowych w pliku [*przykladoweDane-Projekt.csv*](https://github.com/ewaldmikolaj/projekt_rpis/blob/main/data/przykladoweDane-Projekt.csv) program zaczyna od uzupełnienia braków w danych, czyli wartości NA. Wartości puste uzupełniane są przez **średnią** obliczaną dla grupy znajdującej się w pierwszej kolumnie zbioru danych. <br>
 Wartości NA uzupełnione przez program:
 
 - 5 rząd, 10 kolumna (gr: CHOR1, kl: MON): 0.8579167
@@ -31,3 +31,5 @@ Wartości odstające w analizowanym plik:
 | HCT     | 0.0423                          |
 | MCHC    | 38.8674 38.203 32.0573 32.2234  |
 | MON     | 1.5 1.52 0.14 1.61 7            |
+
+Wartości te są wyszukiwane na podstawie wykresu pudełkowego, a dokładniej są to wartości, których położenie na wykresie znajduje się daleko od prostokątu (pudełka).

@@ -36,10 +36,15 @@ for (i in which(sapply(data, is.numeric))) {
   #cat(text, "\n", sep = " ")
 }
 
-data_mean <- data.frame(
+characteristics <- data.frame(
+  method <- c(),
+  name <- c()
+)
+
+data.frame(
   data %>%
     group_by(data[1]) %>%
-    summarise(across(where(is.numeric), mean))
+    summarise(across(where(is.numeric), x[1]))
 )
 #cat("Charakterystyka danych: srednie wartosci:\n")
 #data_mean
