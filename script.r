@@ -60,9 +60,10 @@ normality_values <- data.frame(lapply(normality_values,
 #utworzyć wykresy dla zgodności!!
 
 #ocena homogeniczności
-homogeneity_values <- data.frame(
-data %>%
-group_by(data[1]) %>%
-summarise(across(where(is.numeric), function(x) ))
-
-)
+num_values <- unlist(lapply(data, is.numeric))
+homogenity_values <- data.frame(
+  lapply(data[, num_values], function(x)
+  leveneTest(x ~ data[[1]], data = data)$"Pr(>F)"[1]))
+homogenity_values <- data.frame(lapply(homogenity_values,
+    function(x) if (is.numeric(x)) round(x, 3) else x))
+homogenity_values
