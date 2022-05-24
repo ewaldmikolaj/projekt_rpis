@@ -1,6 +1,7 @@
 library("dplyr")
 library("openxlsx")
-library("data.table")
+library("ggpubr")
+library("car")
 
 data <- read.csv2("./data/przykladoweDane-Projekt.csv", sep = ";")
 
@@ -31,19 +32,37 @@ for (i in which(sapply(data, is.numeric))) {
 }
 
 #charakterystyka danych
-characteristic_methods <- c(mean, var)
-method_names <- c("srednia", "wariancja")
+characteristic_methods <- c(mean, sd, median)
+method_names <- c("srednia", "odchylenie_standardowe", "wariancja")
 sheets <- list()
 
 for (i in seq_len(length(characteristic_methods))) {
   df <- data.frame(
     data %>%
     group_by(data[1]) %>%
-    summarise(across(where(is.numeric), characteristic_methods[i]))
+    summarise(across(where(is.numeric), characteristic_methods[i],
+      .names = "{.col}"))
   )
   df <- data.frame(lapply(df,
-    function(x) if(is.numeric(x)) round(x, 2) else x))
+    function(x) if (is.numeric(x)) round(x, 2) else x))
   sheets[[method_names[i]]] <- df
 }
+write.xlsx(sheets, file = "./charakterystyka.xlsx")
 
-write.xlsx(sheets, file = "charakterystyka.xlsx")
+#ocena zgodności z rozkładem normalnym
+normality_values <- data.frame(
+data %>%
+group_by(data[1]) %>%
+summarise(across(where(is.numeric), function(x) shapiro.test(x)$p.value)))
+normality_values <- data.frame(lapply(normality_values,
+    function(x) if (is.numeric(x)) round(x, 3) else x))
+
+#utworzyć wykresy dla zgodności!!
+
+#ocena homogeniczności
+homogeneity_values <- data.frame(
+data %>%
+group_by(data[1]) %>%
+summarise(across(where(is.numeric), function(x) ))
+
+)
