@@ -1,14 +1,8 @@
 library("dplyr")
-library("gridExtra")
-library("xlsx")
+library("openxlsx")
 library("data.table")
 
 data <- read.csv2("./data/przykladoweDane-Projekt.csv", sep = ";")
-
-num_cols <- unlist(lapply(data, is.numeric))
-values <- data[, num_cols]
-avg_values <- aggregate(values, data[1], mean, na.rm = T)
-avg_values
 
 #zamiana braków dancu na średnie dla odpowiedniej grupy
 write("Raport z zamiany braków", file = "./raport.txt")
@@ -36,21 +30,20 @@ for (i in which(sapply(data, is.numeric))) {
   #cat(text, "\n", sep = " ")
 }
 
-characteristics <- data.frame(
-  method <- c(),
-  name <- c()
-)
+#charakterystyka danych
+characteristic_methods <- c(mean, var)
+method_names <- c("srednia", "wariancja")
+sheets <- list()
 
-data.frame(
-  data %>%
+for (i in seq_len(length(characteristic_methods))) {
+  df <- data.frame(
+    data %>%
     group_by(data[1]) %>%
-    summarise(across(where(is.numeric), x[1]))
-)
-#cat("Charakterystyka danych: srednie wartosci:\n")
-#data_mean
+    summarise(across(where(is.numeric), characteristic_methods[i]))
+  )
+  df <- data.frame(lapply(df,
+    function(x) if(is.numeric(x)) round(x, 2) else x))
+  sheets[[method_names[i]]] <- df
+}
 
-data_mean <- data.frame(
-  data %>%
-    group_by(data[1]) %>%
-    summarise(across(where(is.numeric), mean))
-)
+write.xlsx(sheets, file = "charakterystyka.xlsx")
