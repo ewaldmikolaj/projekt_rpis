@@ -32,4 +32,5 @@ Wartości odstające w analizowanym plik:
 | MCHC    | 38.8674 38.203 32.0573 32.2234  |
 | MON     | 1.5 1.52 0.14 1.61 7            |
 
-Wartości te są wyszukiwane na podstawie wykresu pudełkowego, a dokładniej są to wartości, których położenie na wykresie znajduje się daleko od prostokątu (pudełka).
+Wartości te są wyszukiwane na podstawie wykresu pudełkowego, a dokładniej są to wartości, których położenie na wykresie znajduje się daleko od prostokątu (pudełka). <br>
+Kolejnym etapem analizy zestawu danych jest wykonanie charakterystyk dla badanych grup. W tym przypadku mamy trzy grupy: 
