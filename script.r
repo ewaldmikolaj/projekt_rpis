@@ -1,3 +1,25 @@
+if (!require("dplyr")) {
+  install.packages("dplyr")
+}
+if (!require("openxlsx")) {
+  install.packages("openxlsx")
+}
+if (!require("ggpubr")) {
+  install.packages("ggpubr")
+}
+if (!require("car")) {
+  install.packages("car")
+}
+if (!require("FSA")) {
+  install.packages("FSA")
+}
+if (!require("dunn.test")) {
+  install.packages("dunn.test")
+}
+if (!require("stringr")) {
+  install.packages("stringr")
+}
+
 library("dplyr")
 library("openxlsx")
 library("ggpubr")
@@ -6,9 +28,14 @@ library("FSA")
 library("dunn.test")
 library("stringr")
 
+options(warn = -1)
+
 data <- read.csv2("./data/przykladoweDane-Projekt.csv", sep = ";")
 groups <- unique(data[[1]])
 num_values <- unlist(lapply(data, is.numeric))
+
+numeric_cols <- data[, num_values]
+grupa <- names(data[1])
 
 #zamiana braków dancu na średnie dla odpowiedniej grupy
 write("Raport z zamiany braków", file = "./raport.txt")
@@ -59,7 +86,7 @@ for (i in seq_len(length(groups))) {
   df <- data.frame()
   for (j in seq_len(length(method_names))) {
     group_name <- paste(groups[i], method_names[j])
-    line <- characteristics[[j]][1, -1]
+    line <- characteristics[[j]][i, -1]
     df <- rbind(df, data.frame(group_name, line))
   }
   sheets[[groups[i]]] <- df
@@ -67,8 +94,6 @@ for (i in seq_len(length(groups))) {
 write.xlsx(sheets, file = "./charakterystyka.xlsx")
 
 #ocena zgodności z rozkładem normalnym
-#do zrobienia:
-#zrobienie plota
 normality_values <- data.frame(
 data %>%
 group_by(data[1]) %>%
@@ -76,9 +101,18 @@ summarise(across(where(is.numeric), function(x) shapiro.test(x)$p.value)))
 normality_values <- data.frame(lapply(normality_values,
     function(x) if (is.numeric(x)) round(x, 3) else x))
 
+#wykres rozkład normalny
+dir.create("./wykresy/rozklad", recursive = TRUE)
+for (i in seq_len(length(numeric_cols))) {
+  col_name <- names(data[, num_values][i])
+  file_name <- str_glue("{col_name}.png")
+  print(file_name)
+  ggdensity(data, x = col_name,
+  color = names(data[1]), fill = names(data[1]))
+  ggsave(path = "./wykresy/rozklad", filename = file_name)
+}
+
 #ocena homogeniczności
-#do zrobienia
-#zrobnie plota
 homogenity_values <- data.frame(
   lapply(data[, num_values], function(x)
   leveneTest(x ~ data[[1]], data = data)$"Pr(>F)"[1]))
@@ -96,12 +130,8 @@ check_normality <- function(values) {
 
 #testy statystyczne
 #do zrobienie:
-#dodanie plota do ANOVA
-#dodanie plota do KRUSKALA jak pvalue w normie
-#może poprawić kod
-numeric_cols <- data[, num_values]
-grupa <- names(data[1])
-if (length(groups) == 2) {
+dir.create("./wykresy/statystyka")
+if (length(groups) == 2) { # nolint
   for (i in seq_len(length(numeric_cols))) {
 
     col <- data[, num_values][[i]]
@@ -131,11 +161,17 @@ if (length(groups) == 2) {
     pvalue_com <- str_glue("PVALUE: {pvalue}")
     group1_val <- col[data[1] == groups[1]]
     group2_val <- col[data[1] == groups[2]]
+    file_name <- str_glue("./wykresy/statystyka/{col_name}.png")
+
+    png(file_name)
+
     plot(group1_val, type = "l", col = "red",
       main = chart_name, ylab = "Wartosci", xlab = "", xaxt = "n")
     lines(group2_val, col = "green")
     mtext(pvalue_com, side = 3, cex = 1)
     legend("topleft", groups, lty = c(1, 1), col = c("red", "green"))
+
+    dev.off()
 
   }
 } else if (length(groups) > 2) {
@@ -151,9 +187,10 @@ if (length(groups) == 2) {
       result <- str_glue("{col_name} p-value: {pvalue}")
       print(result)
 
+      pvalue <- round(pvalue, 4)
+
       if (pvalue < 0.05) {
 
-        print("Istotne różnice")
         tukey <- TukeyHSD(aov(col ~ data[[1]], data = data))
         chart_name <- str_glue("Porównanie {col_name} między grupami")
         plot(tukey)
@@ -167,9 +204,9 @@ if (length(groups) == 2) {
       result <- str_glue("{col_name} p-value: {pvalue}")
       print(result)
 
+      file_name <- str_glue("{col_name}.png")
       if (pvalue < 0.05) {
 
-        print("Istotne różnice")
         dn <- dunnTest(col ~ data[[1]], data = data)
         print(dn)
 
@@ -186,12 +223,17 @@ if (length(groups) == 2) {
           p = pvalue
         )
 
-        print(ggplot(data, aes(x = grupa, y = col))
-        + geom_boxplot()
-        + stat_pvalue_manual(df,
-        y.position = pos, step.increase = 0.05,
-        label = "p")
-        + labs(title = chart_name, x = "grupy", y = col_name))
+        ggplot(data, aes(x = grupa, y = col)) + geom_boxplot() + stat_pvalue_manual(df, # nolint
+        y.position = pos, step.increase = 0.05, label = "p") + labs(title = chart_name, x = "grupy", y = col_name) #nolint
+        ggsave(path = "./wykresy/statystyka", filename = file_name)
+
+      } else {
+
+        chart_name <- str_glue("Porównanie {col_name} między grupami. PVALUE: {pvalue}") # nolint
+
+        ggplot(data, aes(x = grupa, y = col)) + geom_boxplot() + labs(title = chart_name, x = "grupy", y = col_name) #nolint
+        ggsave(path = "./wykresy/statystyka", filename = file_name)
+
       }
 
       cat("\n\n")
@@ -201,3 +243,44 @@ if (length(groups) == 2) {
 }
 
 #analizy korelacji
+#do zrobienia
+#zapis wykresów
+dir.create("./wykresy/korelacja")
+write("Analiza korelacji:\n", file = "./korelacja.txt")
+for (i in seq_len(length(groups))) { # nolint
+
+  current_group <- data %>% filter(data[1] == groups[i])
+
+  for (j in seq_len(length(numeric_cols))) {
+    for (z in j: length(numeric_cols)) {
+
+      if (j != z) {
+
+        column_f <- current_group[, num_values][[j]]
+        column_s <- current_group[, num_values][[z]]
+
+        correlation_test_result <- cor.test(column_f, column_s,
+          method = "spearman")
+        pvalue <- round(correlation_test_result$p.value, 3)
+
+        if (pvalue > 0.5 || pvalue < -0.5) {
+          name1 <- str_glue("{groups[i]}${names(current_group[, num_values][j])}") # nolint
+          name2 <- str_glue("{groups[i]}${names(current_group[, num_values][z])}") # nolint
+          result <- str_glue("Korelacja {name1}, {name2}: {pvalue}")
+
+          write(result, file = "./korelacja.txt", append = TRUE)
+
+          file_name <- str_glue("{name1}.{name2}.png")
+          chart_name <- str_glue("Korelacja między {name1}, a {name2}")
+          ggscatter(current_group,
+            x = names(current_group[, num_values][j]),
+            y = names(current_group[, num_values][z]), add = "reg.line",
+            conf.int = TRUE, color = "green",
+            cor.method = "spearman", cor.coef = TRUE) + labs(title = chart_name)
+          ggsave(path = "./wykresy/korelacja", filename = file_name)
+
+        }
+      }
+    }
+  }
+}
