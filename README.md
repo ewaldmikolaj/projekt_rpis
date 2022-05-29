@@ -14,5 +14,6 @@ W przpypadku uruchomienia pliku na Linuxie musimy najpierw ustawić odpowiednią
 ```
 R CMD BATCH --vanilla "--args ścieżka do pliku csv" script.r output.txt
 ```
+Co ważne dane w pliku .csv muszą być oddzielone ";". W przeciwnym przypadku program nie zadziała poprawnie. 
 
 ## sprawozdanie
