@@ -44,7 +44,7 @@ Kolejnym etapem działania programu jest wykonanie charakterystyki dla wprowadzo
 | CHOR1 os    | 5,88  | 8,82  | 5,77 | 54,22  | 1,19  | 0,03 | 0,88  | 0,29 | 2,58  |
 | CHOR1 med   | 29    | 3,97  | 4,2  | 217    | 12,4  | 0,36 | 35,05 | 0,76 | 11,66 |
 
-Skrót sr oznacza wartość średnią, os oznacza odchylenie standardowe, a med oznacza medianę. Każda grupa z danych podanych przez użytkownika posiada swoją charakterystykę w osobnym arkuszu w pliku wynikowym. 
+Skrót **sr** oznacza wartość średnią, **os** oznacza odchylenie standardowe, a **med** oznacza medianę. Każda grupa z danych podanych przez użytkownika posiada swoją charakterystykę w osobnym arkuszu w pliku wynikowym. 
 
 W celu rozpoczęcia analizy porównawczej między grupami, należy wpierw określić zgodność z rozkładem normalnym oraz homogeniczność wariancji badanych danych.
 
@@ -52,10 +52,37 @@ W celu określenia zgodności z rozkładem normalnym program wykorzystuje metod�
 
 Homogeniczność wariancji jest obliczana przy użyciu *leveneTest*, którego działanie zostało oparte na [teście Levene'a jednorodności wariancji](https://pl.wikipedia.org/wiki/Test_Levene%E2%80%99a_jednorodno%C5%9Bci_wariancji). Po obliczeniu wartości dane są zaokrąglane do trzech miejsc po przecinku, a następnie zapisywane w data.frame.
 
-Analiza porównawcza zachodzi zgodnie z schematem blokowym. Rozpoczyna się od sprawdzenia ilości porównywanych grup. Jeżeli w zestawie są dwie grupy rozważamy przeprowadzenie testów:
+Jeżeli wartość p-value z analizy zgodności z rozkładem normalnym / badania homogeniczności wariancji jest < 0.05 oznacza to że dane nie są zgodne z rozkładem normalnym / nie mają jednorodnej wariancji.
 
-- test **t-Studenta**: jeżeli dane mają zgodność z rozkładem normalnym oraz wariancja jest jednorodna.
-- test **Welcha**: jeżeli dane mają zgodność z rozkładem normalnym, ale wariancja nie jest jednorodna.
-- test **Wilcoxona**: jeżeli dane nie są zgodne z rozkładem normalnym.
+Analiza porównawcza zachodzi zgodnie z schematem blokowym. Rozpoczyna się od sprawdzenia ilości porównywanych grup. Jeżeli w zestawie są dwie grupy, rozważamy przeprowadzenie testów:
+
+- test **t-Studenta**: jeżeli dane mają zgodność z rozkładem normalnym oraz wariancja jest jednorodna. W celu wykonania testu t-studenta wykorzystywana jest funkcja *t.test*. 
+- test **Welcha**: jeżeli dane mają zgodność z rozkładem normalnym, ale wariancja nie jest jednorodna. Test Welcha wykonujemy tą samą metodą, jednak podajemy jako parametr, że wariancja nie jest jednorodna.
+- test **Wilcoxona**: jeżeli dane nie są zgodne z rozkładem normalnym. Test ten wykonujemy przy użyciu funkcji *wilcox.test*.
 
 W przypadku więcej niż dwóch grup rozważane są następujące testy:
+
+- test **ANOVA**: jeżeli dane są zgodne z rozkładem normalnym oraz wariancja jest jednorodna. W celu wykonania testu wykorzystuje się funckję *aov*.
+- test **Kruskala - Wallisa**: jeżeli dane nie są zgodne z rozkładem normalnym lub wariancja nie jest jednorodna. W celu zbadania wykorzystujemy funkcję *kruskal.test*.
+
+W obu przypadkach, wartość p-value > 0.05 oznacza, że nie ma istotnych różnic pomiędzy grupami. W innym przypadku zakładamy, że grupy różnią się. Jeżeli w badanym zestawie danych są więcej niż dwie grupy, a z testów wyjdzie, że istnieją różnice między nimi stosujemy test *post hoc*, które pokazują p-value między konkretnymi grupami. Dla testu ANOVA jest post hoc Tukey'a, a dla Kruskala - Wallisa post hoc Dunna. 
+
+Wyniki testów są dopisywane do pliku *raport.txt*. Program informuje, czy pomiędzy grupami są różnice oraz pvalue. W przypadku testu Kruskala - Wallisa program przedstawia dane w sposób graficzny w postaci wykresu pudełkowego. Jeżeli między grupami występują różnice to pomiędzy "pudełkami" na wykresie rysowane są linie z wartością p-value. W przypadku testu ANOVA program rysuje wykres jedynie w przypadku, gdy wartości w grupach różnią się, w rzeciwnym jedynie zapisuje informacje do raportu. Wykresy są zapisywane w folderze */wykresy/statystyka*.
+
+Dla testu Kruskala - Wallisa prorgram rysuje wykres pudełkowy nawet jeżeli między grupami nie ma różnic.
+
+Ostatnim etapem analizy wykonywanej przez program są analizy korelacji. Wyniky zapisywane są w postaci tekstowej oraz graficznej. W postaci tekstowej zostają zapisane w pliku *korelacja.txt*. Informacja zależy od kilku warunków
+```
+Jeżeli p-value pomiędzy 0.5 i 0.7 
+  wypisz: Silna korelacja dodatnia między col_1 i col_2: p-value
+Jeżeli p-value pomiędzy 0.7 i 1
+  wypisz: Bardzo silna korelacja dodatnia między col_1 i col_2: p-value
+
+Jeżeli p-value pomiędzy -0.5 i -0.7 
+  wypisz: Silna korelacja ujemna między col_1 i col_2: p-value
+Jeżeli p-value pomiędzy -0.7 i -1
+  wypisz: Bardzo silna korelacja ujemna między col_1 i col_2: p-value
+```
+
+
+Dla wartośći p-value większych niż 0.5 lub mniejszych niż -0.5 tworzone są wykresy przedstawiające korelację między dwoma kolumnami. Wykresy są zapisywane w folderze */wykresy/koleracja*. 

@@ -30,7 +30,9 @@ library("stringr")
 
 options(warn = -1)
 
-data <- read.csv2("./data/przykladoweDane-Projekt.csv", sep = ";")
+data_file <- commandArgs(trailingOnly = TRUE)
+
+data <- read.csv2(data_file, sep = ";")
 groups <- unique(data[[1]])
 num_values <- unlist(lapply(data, is.numeric))
 
@@ -53,8 +55,6 @@ for (i in which(sapply(data, is.numeric))) {
 
   }
 }
-
-data[30, 1]
 
 #wykrycie wartości odstających
 write("\nWartosci odstające w danych", file = "./raport.txt", append = TRUE)
@@ -110,7 +110,6 @@ dir.create("./wykresy/rozklad", recursive = TRUE)
 for (i in seq_len(length(numeric_cols))) {
   col_name <- names(data[, num_values][i])
   file_name <- str_glue("{col_name}.png")
-  print(file_name)
   ggdensity(data, x = col_name,
   color = names(data[1]), fill = names(data[1]))
   ggsave(path = "./wykresy/rozklad", filename = file_name)
@@ -132,9 +131,18 @@ check_normality <- function(values) {
   return(TRUE)
 }
 
+write_pvalue <- function(col_name, pvalue) {
+  if (pvalue > 0.05) {
+    res <- str_glue("Brak różnic między grupami dla {col_name}, pvalue: {pvalue}") #nolint
+  } else {
+    res <- str_glue("Są różnice między grupami dla {col_name}, pvalue: {pvalue}") #nolint
+  }
+  write(res, file = "./raport.txt", append = TRUE)
+}
+
 #testy statystyczne
-#do zrobienie:
 dir.create("./wykresy/statystyka")
+write("\nAnaliza statystyczna", file = "./raport.txt", append = TRUE)
 if (length(groups) == 2) { # nolint
   for (i in seq_len(length(numeric_cols))) {
 
@@ -167,6 +175,8 @@ if (length(groups) == 2) { # nolint
     group2_val <- col[data[1] == groups[2]]
     file_name <- str_glue("./wykresy/statystyka/{col_name}.png")
 
+    write_pvalue(col_name, pvalue)
+
     png(file_name)
 
     plot(group1_val, type = "l", col = "red",
@@ -189,7 +199,6 @@ if (length(groups) == 2) { # nolint
 
       pvalue <- summary(aov(col ~ data[[1]], data = data))[[1]][["Pr(>F)"]][[1]]
       result <- str_glue("{col_name} p-value: {pvalue}")
-      print(result)
 
       pvalue <- round(pvalue, 4)
 
@@ -202,17 +211,17 @@ if (length(groups) == 2) { # nolint
 
       }
 
+      write_pvalue(col_name, round(pvalue, 3))
+
     } else {
 
       pvalue <- kruskal.test(col ~ data[[1]], data = data)$p.value
-      result <- str_glue("{col_name} p-value: {pvalue}")
-      print(result)
 
       file_name <- str_glue("{col_name}.png")
+      write_pvalue(col_name, round(pvalue, 3))
       if (pvalue < 0.05) {
 
         dn <- dunnTest(col ~ data[[1]], data = data)
-        print(dn)
 
         chart_name <- str_glue("Porównanie {col_name} między grupami")
         custom_g <- unlist(strsplit(dn$res$Comparison, " - "))
@@ -239,16 +248,11 @@ if (length(groups) == 2) { # nolint
         ggsave(path = "./wykresy/statystyka", filename = file_name)
 
       }
-
-      cat("\n\n")
-
     }
   }
 }
 
 #analizy korelacji
-#do zrobienia
-#zapis wykresów
 dir.create("./wykresy/korelacja")
 write("Analiza korelacji:\n", file = "./korelacja.txt")
 for (i in seq_len(length(groups))) { # nolint
@@ -270,7 +274,18 @@ for (i in seq_len(length(groups))) { # nolint
         if (pvalue > 0.5 || pvalue < -0.5) {
           name1 <- str_glue("{groups[i]}${names(current_group[, num_values][j])}") # nolint
           name2 <- str_glue("{groups[i]}${names(current_group[, num_values][z])}") # nolint
-          result <- str_glue("Korelacja {name1}, {name2}: {pvalue}")
+
+          if (pvalue > 0.5 && pvalue <= 0.7) {
+            result <- str_glue("Silna korelacja dodatnia {name1}, {name2}: {pvalue}") #nolint
+          } else if (pvalue > 0.7 && pvalue <= 1) {
+            result <- str_glue("Bardzo silna korelacja dodatnia {name1}, {name2}: {pvalue}") #nolint
+          }
+
+          if (pvalue < -0.5 && pvalue >= -0.7) {
+            result <- str_glue("Silna korelacja ujemna {name1}, {name2}: {pvalue}") #nolint
+          } else if (pvalue < -0.7 && pvalue >= 1) {
+            result <- str_glue("Bardzo silna korelacja ujemna {name1}, {name2}: {pvalue}") #nolint
+          }
 
           write(result, file = "./korelacja.txt", append = TRUE)
 
