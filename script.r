@@ -45,12 +45,16 @@ for (i in which(sapply(data, is.numeric))) {
     new_value <- mean(data[data[, 1] == data[j, 1], i], na.rm = TRUE)
     data[j, i] <- new_value
 
-    text <- c("Zamiana w", j, "i", i, "na", new_value)
-    write(text, "./raport.txt", sep = " ", append = TRUE,
-      ncolumns = length(text))
+    gr_name <- data[j, 1]
+    cl_name <- names(data[i])
+
+    text <- str_glue("Wpisanie {new_value} w {j}, {i} ({gr_name}, {cl_name})")
+    write(text, "./raport.txt", append = TRUE)
 
   }
 }
+
+data[30, 1]
 
 #wykrycie wartości odstających
 write("\nWartosci odstające w danych", file = "./raport.txt", append = TRUE)
