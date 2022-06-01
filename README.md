@@ -71,15 +71,22 @@ W przypadku więcej niż dwóch grup rozważane są następujące testy:
 - test **ANOVA**: jeżeli dane są zgodne z rozkładem normalnym oraz wariancja jest jednorodna. W celu wykonania testu wykorzystuje się funckję *aov*.
 - test **Kruskala - Wallisa**: jeżeli dane nie są zgodne z rozkładem normalnym lub wariancja nie jest jednorodna. W celu zbadania wykorzystujemy funkcję *kruskal.test*.
 
-W obu przypadkach, wartość p-value > 0.05 oznacza, że nie ma istotnych różnic pomiędzy grupami. W innym przypadku zakładamy, że grupy różnią się. Jeżeli w badanym zestawie danych są więcej niż dwie grupy, a z testów wyjdzie, że istnieją różnice między nimi stosujemy test *post hoc*, które pokazują p-value między konkretnymi grupami. Dla testu ANOVA jest post hoc Tukey'a, a dla Kruskala - Wallisa post hoc Dunna. 
+W obu przypadkach, wartość p-value > 0.05 oznacza, że nie ma istotnych różnic pomiędzy grupami. W przypadku, gdy p-value < 0.05 zakładamy, że grupy różnią się. Jeżeli w badanym zestawie danych są więcej niż dwie grupy, a z testów wyjdzie, że istnieją różnice między nimi stosujemy test *post hoc*, które pokazują p-value między konkretnymi grupami. Dla testu ANOVA jest post hoc Tukey'a, a dla Kruskala - Wallisa post hoc Dunna. 
 
-Wyniki testów są dopisywane do pliku *raport.txt*. Program informuje, czy pomiędzy grupami są różnice oraz pvalue. W przypadku testu Kruskala - Wallisa program przedstawia dane w sposób graficzny w postaci wykresu pudełkowego. Jeżeli między grupami występują różnice to pomiędzy "pudełkami" na wykresie rysowane są linie z wartością p-value. W przypadku testu ANOVA program rysuje wykres jedynie w przypadku, gdy wartości w grupach różnią się, w rzeciwnym jedynie zapisuje informacje do raportu. Wykresy są zapisywane w folderze */wykresy/statystyka*. 
-
-Dla testu Kruskala - Wallisa prorgram rysuje wykres pudełkowy nawet jeżeli między grupami nie ma różnic.
+Wyniki testów są dopisywane do pliku *raport.txt*. Program informuje, czy pomiędzy grupami są różnice oraz wypisuje wartość p-value. 
 
 <img src="przykladowe_wykresy/statystyka_p1.png/"></img>
 
+Tak wygląda wykres tworzony dla danych testowanych metodą Kruskala - Wallisa, a następnie testem post hoc Dunna. Wartości dla każdej grupy przedstawione są jako osobny wykres pudełkowy. Wartości p-value między każdą parą grup zostały przedstawione na liniach pomiędzy dwoma grupami. Na każdej linii wypisana jest wartość informujaća o p-value.<br> 
+W przypadku, gdy grupy nie różnią się znacząco, a test post hoc nie jest wykonywany wykres przedstawia jedynie wartości dla danej kolumny przedstawione na wykresie pudełkowym.
+
+
+<img src="przykladowe_wykresy/statystyka_p2.png/" ></img>
+
+Tak wygląda przykładowy wykres przedstawiający wyniki testu ANOVA. 
+
 Ostatnim etapem analizy wykonywanej przez program są analizy korelacji. Wyniky zapisywane są w postaci tekstowej oraz graficznej. W postaci tekstowej zostają zapisane w pliku *korelacja.txt*. Informacja zależy od kilku warunków
+
 ```
 Jeżeli p-value pomiędzy 0.5 i 0.7 
   wypisz: Silna korelacja dodatnia między col_1 i col_2: p-value
@@ -91,6 +98,5 @@ Jeżeli p-value pomiędzy -0.5 i -0.7
 Jeżeli p-value pomiędzy -0.7 i -1
   wypisz: Bardzo silna korelacja ujemna między col_1 i col_2: p-value
 ```
-
 
 Dla wartośći p-value większych niż 0.5 lub mniejszych niż -0.5 tworzone są wykresy przedstawiające korelację między dwoma kolumnami. Wykresy są zapisywane w folderze */wykresy/koleracja*. 
