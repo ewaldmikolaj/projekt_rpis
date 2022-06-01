@@ -123,12 +123,31 @@ homogenity_values <- data.frame(lapply(homogenity_values,
     function(x) if (is.numeric(x)) round(x, 3) else x))
 
 check_normality <- function(values) {
+  print(values)
   for (i in seq_len(length(values))) {
     if (values[i] < 0.05) {
       return(FALSE)
     }
   }
   return(TRUE)
+}
+
+write_normality <- function(col_name, normality) {
+  if (normality) {
+    text <- str_glue("Dla {col_name} wartości zgodne z rozkładem normalnym")
+  } else {
+    text <- str_glue("Dla {col_name} brak zgodności z rozkładem normalnym")
+  }
+  write(text, file = "./raport.txt", append = TRUE)
+}
+
+write_homogenity <- function(col_name, homogenity) {
+  if (homogenity) {
+    text <- str_glue("Dla {col_name} wariancja jednorodna")
+  } else {
+    text <- str_glue("Dla {col_name} brak jednorodności wariancji")
+  }
+  write(text, file = "./raport.txt", append = TRUE)
 }
 
 write_pvalue <- function(col_name, pvalue) {
@@ -142,27 +161,37 @@ write_pvalue <- function(col_name, pvalue) {
 
 #testy statystyczne
 dir.create("./wykresy/statystyka")
-write("\nAnaliza statystyczna", file = "./raport.txt", append = TRUE)
+write("\nAnaliza porównawcza", file = "./raport.txt", append = TRUE)
 if (length(groups) == 2) { # nolint
   for (i in seq_len(length(numeric_cols))) {
 
     col <- data[, num_values][[i]]
     col_name <- names(data[, num_values][i])
 
-    if (check_normality(normality_values[[i]])) {
+
+    if (check_normality(normality_values[, -1][[i]])) {
+
+      write_normality(col_name, TRUE)
 
       if (homogenity_values[[i]] > 0.05) {
+
+        write_homogenity(col_name, TRUE)
 
         pvalue <- t.test(col ~ data[[1]], var.equal = TRUE)$p.value
         pvalue <- round(pvalue, 4)
 
       } else {
 
+        write_homogenity(col_name, FALSE)
+
         pvalue <- t.test(col ~ data[[1]], var.equal = FALSE)$p.value
         pvalue <- round(pvalue, 4)
 
       }
     } else {
+
+      write_normality(col_name, FALSE)
+      write_homogenity(col_name, FALSE)
 
       pvalue <- wilcox.test(col ~ data[[1]], data = data)$p.value
       pvalue <- round(pvalue, 4)
@@ -194,8 +223,11 @@ if (length(groups) == 2) { # nolint
     col <- data[, num_values][[i]]
     col_name <- names(data[, num_values][i])
 
-    if (check_normality(normality_values[[i]]) &&
+    if (check_normality(normality_values[, -1][[i]]) &&
           homogenity_values[[i]] > 0.05) {
+
+      write_normality(col_name, TRUE)
+      write_homogenity(col_name, TRUE)
 
       pvalue <- summary(aov(col ~ data[[1]], data = data))[[1]][["Pr(>F)"]][[1]]
       result <- str_glue("{col_name} p-value: {pvalue}")
@@ -204,16 +236,28 @@ if (length(groups) == 2) { # nolint
 
       if (pvalue < 0.05) {
 
+        file_name <- str_glue("./wykresy/statystyka/{col_name}.png")
+        png(file_name)
+
         tukey <- TukeyHSD(aov(col ~ data[[1]], data = data))
         chart_name <- str_glue("Porównanie {col_name} między grupami")
         plot(tukey)
         mtext(chart_name, side = 3, cex =  2)
+
+        dev.off()
 
       }
 
       write_pvalue(col_name, round(pvalue, 3))
 
     } else {
+
+      write_normality(col_name, FALSE)
+      if (homogenity_values[[i]] > 0.05) {
+        write_homogenity(col_name, TRUE)
+      } else {
+        write_homogenity(col_name, FALSE)
+      }
 
       pvalue <- kruskal.test(col ~ data[[1]], data = data)$p.value
 

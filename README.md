@@ -22,7 +22,7 @@ Nie jest wymagane instalowanie żadnych dodatkowych bibliotek, ponieważ skrypt 
 Schemat blokowy przedstawiający działanie programu wygląda następująco: 
 <br>
 
-<img src="wykres.png"></imhg>
+<img src="przykladowe_wykresy/wykres.png"></img>
 
 Pierwszym krokiem po wszytaniu danych jest uzupełnienie braków danych w podanym przez użytkownika arkuszu. Wszystkie wprowadzone zmiany są raportowane do pliku *raport.txt*. <br>
 Braki danych wypisane są w następujący sposób:
@@ -48,9 +48,15 @@ Skrót **sr** oznacza wartość średnią, **os** oznacza odchylenie standardowe
 
 W celu rozpoczęcia analizy porównawczej między grupami, należy wpierw określić zgodność z rozkładem normalnym oraz homogeniczność wariancji badanych danych.
 
-W celu określenia zgodności z rozkładem normalnym program wykorzystuje metodę o nazwie *shapiro.test*, której działanie zostało oparte o [test Shapiro-Wilka](https://pl.wikipedia.org/wiki/Test_Shapiro-Wilka). Po wykonaniu analizy program wykonuje ich graficzną reprezentację przy użyciu funkcji *ggdensity()*. Wykresy zapisują się w folderu */wykresy/rozklad*. Nazwa każdego wykresu odnosi się do nazwy kolumny, której dane są przedstawione na wykresie. Każda grupa jest przedstawiona jako osobny kolor. Wartości zgodności są zapisywane w data.frame w celu późniejszego użycia. 
+W celu określenia zgodności z rozkładem normalnym program wykorzystuje metodę o nazwie *shapiro.test*, której działanie zostało oparte o [test Shapiro-Wilka](https://pl.wikipedia.org/wiki/Test_Shapiro-Wilka). Po wykonaniu analizy program wykonuje ich graficzną reprezentację przy użyciu funkcji *ggdensity()*. Wykresy zapisują się w folderu */wykresy/rozklad*. Nazwa każdego wykresu odnosi się do nazwy kolumny, której dane są przedstawione na wykresie.Wartości zgodności są zapisywane w data.frame w celu późniejszego użycia. 
+
+<img src="przykladowe_wykresy/rozklad_p.png"></img>
+
+Tak wygląda przykładowy wykres, który przedstawia zgodność z rozkładem normalnym. Każda grupa jest przedstawiona jako osobny kolor. Wartości na osi Y oznaczają (density) oznaczają jak często występują dane wartości. Idealny rozkład zgodny z rozkładem normalnym ma kszałt tzw. dzwona i jest symetryczny. 
 
 Homogeniczność wariancji jest obliczana przy użyciu *leveneTest*, którego działanie zostało oparte na [teście Levene'a jednorodności wariancji](https://pl.wikipedia.org/wiki/Test_Levene%E2%80%99a_jednorodno%C5%9Bci_wariancji). Po obliczeniu wartości dane są zaokrąglane do trzech miejsc po przecinku, a następnie zapisywane w data.frame.
+
+Informacja o zgodności z rozkładem normalnym i homogeniczności wariancji jest zapisywana w pliku *raport.txt*.
 
 Jeżeli wartość p-value z analizy zgodności z rozkładem normalnym / badania homogeniczności wariancji jest < 0.05 oznacza to że dane nie są zgodne z rozkładem normalnym / nie mają jednorodnej wariancji.
 
@@ -67,9 +73,11 @@ W przypadku więcej niż dwóch grup rozważane są następujące testy:
 
 W obu przypadkach, wartość p-value > 0.05 oznacza, że nie ma istotnych różnic pomiędzy grupami. W innym przypadku zakładamy, że grupy różnią się. Jeżeli w badanym zestawie danych są więcej niż dwie grupy, a z testów wyjdzie, że istnieją różnice między nimi stosujemy test *post hoc*, które pokazują p-value między konkretnymi grupami. Dla testu ANOVA jest post hoc Tukey'a, a dla Kruskala - Wallisa post hoc Dunna. 
 
-Wyniki testów są dopisywane do pliku *raport.txt*. Program informuje, czy pomiędzy grupami są różnice oraz pvalue. W przypadku testu Kruskala - Wallisa program przedstawia dane w sposób graficzny w postaci wykresu pudełkowego. Jeżeli między grupami występują różnice to pomiędzy "pudełkami" na wykresie rysowane są linie z wartością p-value. W przypadku testu ANOVA program rysuje wykres jedynie w przypadku, gdy wartości w grupach różnią się, w rzeciwnym jedynie zapisuje informacje do raportu. Wykresy są zapisywane w folderze */wykresy/statystyka*.
+Wyniki testów są dopisywane do pliku *raport.txt*. Program informuje, czy pomiędzy grupami są różnice oraz pvalue. W przypadku testu Kruskala - Wallisa program przedstawia dane w sposób graficzny w postaci wykresu pudełkowego. Jeżeli między grupami występują różnice to pomiędzy "pudełkami" na wykresie rysowane są linie z wartością p-value. W przypadku testu ANOVA program rysuje wykres jedynie w przypadku, gdy wartości w grupach różnią się, w rzeciwnym jedynie zapisuje informacje do raportu. Wykresy są zapisywane w folderze */wykresy/statystyka*. 
 
 Dla testu Kruskala - Wallisa prorgram rysuje wykres pudełkowy nawet jeżeli między grupami nie ma różnic.
+
+<img src="przykladowe_wykresy/statystyka_p1.png/"></img>
 
 Ostatnim etapem analizy wykonywanej przez program są analizy korelacji. Wyniky zapisywane są w postaci tekstowej oraz graficznej. W postaci tekstowej zostają zapisane w pliku *korelacja.txt*. Informacja zależy od kilku warunków
 ```
