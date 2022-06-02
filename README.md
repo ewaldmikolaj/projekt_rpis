@@ -78,13 +78,17 @@ Wyniki testów są dopisywane do pliku *raport.txt*. Program informuje, czy pomi
 <img src="przykladowe_wykresy/statystyka_p1.png/"></img>
 
 Tak wygląda wykres tworzony dla danych testowanych metodą Kruskala - Wallisa, a następnie testem post hoc Dunna. Wartości dla każdej grupy przedstawione są jako osobny wykres pudełkowy. Wartości p-value między każdą parą grup zostały przedstawione na liniach pomiędzy dwoma grupami. Na każdej linii wypisana jest wartość informujaća o p-value.<br> 
-W przypadku, gdy grupy nie różnią się znacząco, a test post hoc nie jest wykonywany wykres przedstawia jedynie wartości dla danej kolumny przedstawione na wykresie pudełkowym.
+W przypadku, gdy grupy nie różnią się znacząco, a test post hoc nie jest wykonywany wykres przedstawia jedynie wartości dla danej kolumny przedstawione na wykresie pudełkowym. <br>
 
 
-<img src="przykladowe_wykresy/statystyka_p2.png/" ></img>
+<p align="center">
+  <img src="przykladowe_wykresy/statystyka_p2.png/" ></img>
+</p>
 
-Tak wygląda przykładowy wykres przedstawiający wyniki testu ANOVA. 
+Tak wygląda przykładowy wykres przedstawiający wyniki testu ANOVA. Wykres zawiera wszystkie możliwe porównania dla grup z podanych przez użytkownika danych. Oś X przedstawia średnie różnice stwierdzone między tymi parami. Znaczące różnice grupowe to takie, których przedział 95% ufności nie obejmuje zera. Jest to inny sposób potwierdzenia, że wartość dla tej pary (p-value) wynosi < 0,05. Środkowa wartość dla danej pary przedstawia średnią różnicę, np dla KONTROLA - CHOR2 jest to -1.1. 
 
+Wykresy dla danych, w których występują jedynie dwie grupy wyglądają podobnie do etapu analizy porównawczej. Dla każdego porównywanego rysowany jest wykres, który przedstawia rozkład danych, dzięki czemu można zobaczyć, czy dane różnią się. Nad wykresem wypisana jest wartość p-value. 
+ 
 Ostatnim etapem analizy wykonywanej przez program są analizy korelacji. Wyniky zapisywane są w postaci tekstowej oraz graficznej. W postaci tekstowej zostają zapisane w pliku *korelacja.txt*. Informacja zależy od kilku warunków
 
 ```
@@ -100,3 +104,7 @@ Jeżeli p-value pomiędzy -0.7 i -1
 ```
 
 Dla wartośći p-value większych niż 0.5 lub mniejszych niż -0.5 tworzone są wykresy przedstawiające korelację między dwoma kolumnami. Wykresy są zapisywane w folderze */wykresy/koleracja*. 
+
+<img src="przykladowe_wykresy/korelacja_p.png/"></img>
+
+Wykres dla korelacji przedstawia zależność między dwoma kolumnami. Im wyższe p tym wyższa korelacja. Na wykresie silną korelację widać jeżeli większość punktów ma swoje położenie w zaznaczonym obszarze blisko lini biegnącej przez wykres. 
