@@ -327,7 +327,7 @@ for (i in seq_len(length(groups))) { # nolint
 
           if (pvalue < -0.5 && pvalue >= -0.7) {
             result <- str_glue("Silna korelacja ujemna {name1}, {name2}: {pvalue}") #nolint
-          } else if (pvalue < -0.7 && pvalue >= 1) {
+          } else if (pvalue < -0.7 && pvalue >= -1) {
             result <- str_glue("Bardzo silna korelacja ujemna {name1}, {name2}: {pvalue}") #nolint
           }
 
